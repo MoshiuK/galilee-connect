@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}My Answers — {{ lesson.title }}{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <a href="/my-submissions" class="back-link">← Back to Submissions</a>
+        <h1>{{ lesson.title }}</h1>
+        <p class="lesson-meta-small">{{ lesson.lesson_date.strftime('%B %d, %Y') }} · {{ lesson.scripture_reference or '' }}</p>
+    </div>
+
+    {% for q in questions %}
+    <div class="answer-card">
+        <div class="question-number">Question {{ loop.index }}
+            {% if q.question_type == 'multiple_choice' %}
+            <span class="q-type-badge">Multiple Choice</span>
+            {% elif q.question_type == 'fill_blank' %}
+            <span class="q-type-badge">Fill in the Blank</span>
+            {% else %}
+            <span class="q-type-badge">Essay</span>
+            {% endif %}
+        </div>
+        <div class="question-text">{{ q.question_text }}</div>
+
+        {% set resp = responses.get(q.id) %}
+        {% if resp %}
+        <div class="my-answer">
+            <strong>Your Answer:</strong>
+            <p>{{ resp.answer_text or '(no answer)' }}</p>
+            {% if resp.is_correct is not none %}
+            {% if resp.is_correct %}
+            <span class="grade-correct">✓ Correct</span>
+            {% else %}
+            <span class="grade-incorrect">✗ Incorrect</span>
+            {% endif %}
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="my-answer no-answer">
+            <em>No answer submitted</em>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <div class="lesson-actions">
+        <a href="/submit/{{ lesson.id }}" class="btn btn-primary">Edit Answers</a>
+        <a href="/lesson/{{ lesson.id }}" class="btn btn-secondary">View Lesson</a>
+    </div>
+</div>
+{% endblock %}

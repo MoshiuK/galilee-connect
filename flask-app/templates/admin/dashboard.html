@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — Galilee Bible Class{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="page-title">📊 Dashboard</h1>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_members }}</div>
+            <div class="stat-label">Active Members</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ published_lessons }}</div>
+            <div class="stat-label">Published Lessons</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ submissions_this_week }}</div>
+            <div class="stat-label">Submissions (Current)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ participation_rate }}%</div>
+            <div class="stat-label">Participation Rate</div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <h2>Quick Actions</h2>
+            <div class="quick-actions">
+                <a href="/admin/lessons/new" class="btn btn-primary">➕ New Lesson</a>
+                <a href="/admin/members" class="btn btn-secondary">👥 Manage Members</a>
+                <a href="/admin/participation" class="btn btn-secondary">📋 Participation</a>
+            </div>
+        </div>
+
+        {% if current_lesson %}
+        <div class="card">
+            <h2>Current Lesson</h2>
+            <div class="current-lesson-info">
+                <h3>{{ current_lesson.title }}</h3>
+                <p>📅 {{ current_lesson.lesson_date.strftime('%B %d, %Y') }}</p>
+                {% if current_lesson.scripture_reference %}
+                <p>📖 {{ current_lesson.scripture_reference }}</p>
+                {% endif %}
+                <div class="quick-actions" style="margin-top:1rem;">
+                    <a href="/lesson/{{ current_lesson.id }}" class="btn btn-small btn-primary">👁 View Lesson</a>
+                    <a href="/admin/lessons/{{ current_lesson.id }}/submissions" class="btn btn-small btn-secondary">Submissions</a>
+                    <a href="/admin/lessons/{{ current_lesson.id }}/edit" class="btn btn-small btn-secondary">Edit</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Birthdays & Anniversaries -->
+    {% if upcoming_birthdays or upcoming_anniversaries %}
+    <div class="dashboard-grid" style="margin-top:1.5rem;">
+        {% if upcoming_birthdays %}
+        <div class="card">
+            <h2>🎂 Upcoming Birthdays</h2>
+            <div class="upcoming-list">
+                {% for b in upcoming_birthdays %}
+                <div class="upcoming-item">
+                    <strong>{{ b.name }}</strong>
+                    <span class="upcoming-date">
+                        {{ b.date.strftime('%b %d') }}
+                        {% if b.days_until == 0 %}
+                        <span class="badge badge-success">Today!</span>
+                        {% elif b.days_until == 1 %}
+                        <span class="badge badge-pending">Tomorrow</span>
+                        {% else %}
+                        <span class="upcoming-days">in {{ b.days_until }} days</span>
+                        {% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if upcoming_anniversaries %}
+        <div class="card">
+            <h2>💍 Upcoming Anniversaries</h2>
+            <div class="upcoming-list">
+                {% for a in upcoming_anniversaries %}
+                <div class="upcoming-item">
+                    <strong>{{ a.name }}</strong>
+                    <span class="upcoming-date">
+                        {{ a.date.strftime('%b %d') }} ({{ a.years }} yr{{ 's' if a.years != 1 }})
+                        {% if a.days_until == 0 %}
+                        <span class="badge badge-success">Today!</span>
+                        {% elif a.days_until == 1 %}
+                        <span class="badge badge-pending">Tomorrow</span>
+                        {% else %}
+                        <span class="upcoming-days">in {{ a.days_until }} days</span>
+                        {% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if recent_lessons %}
+    <div class="card" style="margin-top:1.5rem;">
+        <h2>Recent Lessons</h2>
+        <div class="lesson-list-compact">
+            {% for lesson in recent_lessons %}
+            <div class="lesson-list-item">
+                <div class="lesson-list-info">
+                    <strong>{{ lesson.title }}</strong>
+                    <span class="lesson-meta-small">{{ lesson.lesson_date.strftime('%b %d, %Y') }}</span>
+                </div>
+                <div class="lesson-list-actions">
+                    <span class="badge {% if lesson.status == 'published' %}badge-success{% else %}badge-draft{% endif %}">
+                        {{ lesson.status }}
+                    </span>
+                    <a href="/admin/lessons/{{ lesson.id }}/submissions" class="btn btn-small btn-secondary">Submissions</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

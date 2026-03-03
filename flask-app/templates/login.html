@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Galilee Bible">
+    <meta name="theme-color" content="#103a7a">
+    <title>Login — Galilee Bible Class</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .install-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1d66d2, #2980ef);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 10000;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .install-banner.show {
+            display: block;
+        }
+        .install-content {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .install-text {
+            flex: 1;
+            min-width: 200px;
+        }
+        .install-text strong {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .install-text small {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        .install-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .install-btn {
+            background: white;
+            color: #1d66d2;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        .install-btn:hover {
+            background: #f0f0f0;
+        }
+        .close-banner {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.5);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .close-banner:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .ios-instructions {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        .ios-instructions.show {
+            display: block;
+        }
+    </style>
+</head>
+<body class="login-body">
+    <!-- PWA Install Banner -->
+    <div class="install-banner" id="installBanner">
+        <div class="install-content">
+            <div class="install-text">
+                <strong>📲 Install Galilee Bible Class</strong>
+                <small>Get quick access from your home screen</small>
+                <div class="ios-instructions" id="iosInstructions">
+                    <strong>📱 iOS Installation:</strong><br>
+                    Tap <strong>Share</strong> (box with arrow) → <strong>Add to Home Screen</strong>
+                </div>
+            </div>
+            <div class="install-actions">
+                <button class="install-btn" id="installBtn">Install</button>
+                <button class="close-banner" id="closeBanner">Later</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-cross">✝</div>
+                <h1>Galilee Bible Class</h1>
+                <p class="login-subtitle">Galilee Missionary Baptist Church</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-signin" onclick="showAuth('signin')">Sign In</button>
+                <button class="auth-tab" id="tab-signup" onclick="showAuth('signup')">Sign Up</button>
+            </div>
+
+            <form id="loginForm" onsubmit="return handleLogin(event)">
+                <div class="form-group">
+                    <label for="username">Username or Email</label>
+                    <input type="text" id="username" name="username" required autocomplete="username" autocapitalize="none" autocorrect="off" placeholder="Enter your username or email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Enter your password">
+                </div>
+                <div id="resetSuccess" class="submit-message success" style="display:none;">✅ Password reset successful! Please enter your username/email and new password below.</div>
+                <div id="loginError" class="error-message" style="display:none;"></div>
+                <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Sign In</button>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <a href="/forgot-password" style="color: #d6e9ff; font-size: 0.9rem; text-decoration: none;">Forgot Password?</a>
+                </div>
+            </form>
+
+            <form id="signupForm" onsubmit="return handleSignup(event)" style="display:none;">
+                <div class="form-group">
+                    <label for="signup_name">Full Name *</label>
+                    <input type="text" id="signup_name" required class="form-input" placeholder="Your full name">
+                </div>
+                <div class="form-group">
+                    <label for="signup_email">Email *</label>
+                    <input type="email" id="signup_email" required class="form-input" placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="signup_phone">Phone Number *</label>
+                    <input type="tel" id="signup_phone" required class="form-input" placeholder="(256) 555-1234">
+                </div>
+                <div class="form-group">
+                    <label for="signup_username">Username *</label>
+                    <input type="text" id="signup_username" required class="form-input" placeholder="Choose a username" autocapitalize="none" autocorrect="off">
+                </div>
+                <div class="form-group">
+                    <label for="signup_password">Create Password *</label>
+                    <input type="password" id="signup_password" required minlength="8" class="form-input" placeholder="At least 8 characters">
+                </div>
+                <div class="form-group">
+                    <label for="signup_password2">Confirm Password *</label>
+                    <input type="password" id="signup_password2" required minlength="8" class="form-input" placeholder="Re-enter password">
+                </div>
+                <div id="signupMsg" class="submit-message" style="display:none;"></div>
+                <button type="submit" class="btn btn-primary btn-block" id="signupBtn">Sign Up</button>
+                <p class="small-note">Create your account to access Bible class lessons.</p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    // PWA Install Prompt Handling
+    let deferredPrompt;
+    const installBanner = document.getElementById('installBanner');
+    const installBtn = document.getElementById('installBtn');
+    const closeBanner = document.getElementById('closeBanner');
+    const iosInstructions = document.getElementById('iosInstructions');
+
+    // Detect if already installed or in standalone mode
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                         window.navigator.standalone === true;
+    
+    // Detect iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    // Show install banner after 2 seconds if not installed
+    if (!isStandalone && !sessionStorage.getItem('installBannerDismissed')) {
+        setTimeout(() => {
+            installBanner.classList.add('show');
+            if (isIOS) {
+                iosInstructions.classList.add('show');
+                installBtn.textContent = 'Got it';
+            }
+        }, 2000);
+    }
+
+    // Capture beforeinstallprompt event (Android/Chrome)
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBanner.classList.add('show');
+    });
+
+    // Install button click
+    installBtn.addEventListener('click', async () => {
+        if (isIOS) {
+            // On iOS, just acknowledge
+            installBanner.classList.remove('show');
+            sessionStorage.setItem('installBannerDismissed', 'true');
+            return;
+        }
+
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response: ${outcome}`);
+            deferredPrompt = null;
+        }
+        installBanner.classList.remove('show');
+        sessionStorage.setItem('installBannerDismissed', 'true');
+    });
+
+    // Close banner
+    closeBanner.addEventListener('click', () => {
+        installBanner.classList.remove('show');
+        sessionStorage.setItem('installBannerDismissed', 'true');
+    });
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker registered:', reg.scope))
+                .catch(err => console.log('Service Worker registration failed:', err));
+        });
+    }
+
+    // Handle post-reset redirect: clear autofill and show success message
+    if (new URLSearchParams(window.location.search).get('reset') === '1') {
+        const uField = document.getElementById('username');
+        const pField = document.getElementById('password');
+        // Disable autocomplete to prevent browser from refilling
+        uField.setAttribute('autocomplete', 'off');
+        pField.setAttribute('autocomplete', 'new-password');
+        // Clear fields after a short delay to override autofill
+        setTimeout(() => {
+            uField.value = '';
+            pField.value = '';
+            uField.focus();
+        }, 100);
+        // Also clear again after a longer delay (some browsers autofill late)
+        setTimeout(() => {
+            if (uField.value && !uField.matches(':focus')) {
+                uField.value = '';
+                pField.value = '';
+            }
+        }, 500);
+        document.getElementById('resetSuccess').style.display = 'block';
+        // Clean URL
+        history.replaceState(null, '', '/login');
+    }
+
+    // Auth functions
+    function showAuth(mode){
+      const signin = mode === 'signin';
+      document.getElementById('loginForm').style.display = signin ? 'block' : 'none';
+      document.getElementById('signupForm').style.display = signin ? 'none' : 'block';
+      document.getElementById('tab-signin').classList.toggle('active', signin);
+      document.getElementById('tab-signup').classList.toggle('active', !signin);
+    }
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        var btn = document.getElementById('loginBtn');
+        var errDiv = document.getElementById('loginError');
+        errDiv.style.display = 'none';
+        btn.disabled = true;
+        btn.textContent = 'Signing in...';
+
+        try {
+            var resp = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value
+                })
+            });
+            var data = await resp.json();
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                errDiv.textContent = data.message || 'Login failed';
+                errDiv.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        } catch(err) {
+            errDiv.textContent = 'Connection error. Please try again.';
+            errDiv.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Sign In';
+        }
+        return false;
+    }
+
+    async function handleSignup(e){
+      e.preventDefault();
+      const btn = document.getElementById('signupBtn');
+      const msg = document.getElementById('signupMsg');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      msg.style.display = 'none';
+
+      try {
+        const resp = await fetch('/api/register', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            full_name: document.getElementById('signup_name').value,
+            email: document.getElementById('signup_email').value,
+            phone_number: document.getElementById('signup_phone').value,
+            username: document.getElementById('signup_username').value,
+            password: document.getElementById('signup_password').value,
+            confirm_password: document.getElementById('signup_password2').value
+          })
+        });
+        const data = await resp.json();
+        msg.className = data.success ? 'submit-message success' : 'submit-message error';
+        msg.textContent = data.message || (data.success ? 'Submitted.' : 'Error');
+        msg.style.display = 'block';
+        if (data.success) {
+          document.getElementById('signupForm').reset();
+        }
+      } catch(err) {
+        msg.className = 'submit-message error';
+        msg.textContent = 'Could not submit registration.';
+        msg.style.display = 'block';
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Sign Up';
+      return false;
+    }
+    </script>
+</body>
+</html>

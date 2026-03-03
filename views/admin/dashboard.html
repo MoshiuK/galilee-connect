@@ -1,0 +1,256 @@
+<!-- Admin Layout -->
+<div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar w-64 hidden md:block p-6 flex-shrink-0">
+        <div class="text-center mb-8">
+            <div class="text-4xl mb-2">✝</div>
+            <h1 class="text-lg font-display font-bold text-gold-400">Galilee Connect</h1>
+            <p class="text-purple-300 text-xs mt-1">Admin Dashboard</p>
+        </div>
+        <nav class="space-y-1">
+            <a href="/admin" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white active">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="/admin/members" class="flex items-center gap-3 px-4 py-3 rounded-lg text-purple-200">
+                <span>👥</span> Members
+            </a>
+            <a href="/admin/messages" class="flex items-center gap-3 px-4 py-3 rounded-lg text-purple-200">
+                <span>✉️</span> Messages
+            </a>
+            <a href="/admin/lessons" class="flex items-center gap-3 px-4 py-3 rounded-lg text-purple-200">
+                <span>📖</span> Lessons
+            </a>
+            <div class="border-t border-purple-800 my-4"></div>
+            <a href="/" target="_blank" class="flex items-center gap-3 px-4 py-3 rounded-lg text-purple-300 text-sm">
+                <span>🌐</span> View Registration Page
+            </a>
+            <a href="#" onclick="showChangePasswordModal()" class="flex items-center gap-3 px-4 py-3 rounded-lg text-purple-300 text-sm">
+                <span>🔑</span> Change Password
+            </a>
+            <a href="/admin/logout" class="flex items-center gap-3 px-4 py-3 rounded-lg text-purple-300 text-sm">
+                <span>🚪</span> Sign Out
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Mobile Header -->
+    <div class="md:hidden fixed top-0 left-0 right-0 bg-purple-900 text-white p-4 z-50 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <span class="text-xl">✝</span>
+            <span class="font-display font-bold text-gold-400">Galilee Connect</span>
+        </div>
+        <div class="flex gap-3">
+            <a href="/admin" class="text-white text-sm">📊</a>
+            <a href="/admin/members" class="text-white text-sm">👥</a>
+            <a href="/admin/messages" class="text-white text-sm">✉️</a>
+            <a href="/admin/lessons" class="text-white text-sm">📖</a>
+            <a href="/admin/logout" class="text-white text-sm">🚪</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 md:p-8 md:mt-0 mt-16">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-3xl font-display font-bold text-purple-900">Dashboard</h2>
+                    <p class="text-gray-500">Welcome, {{churchPastor}}</p>
+                </div>
+                <div class="flex gap-3 mt-4 md:mt-0">
+                    <button onclick="triggerNotifications()"
+                        class="btn-gold px-4 py-2 rounded-lg font-medium text-sm">
+                        🔔 Send Notifications Now
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="stat-card bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                    <div class="text-3xl mb-2">👥</div>
+                    <div class="text-3xl font-bold text-purple-900">{{totalMembers}}</div>
+                    <div class="text-sm text-gray-500">Active Members</div>
+                </div>
+                <div class="stat-card bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                    <div class="text-3xl mb-2">✉️</div>
+                    <div class="text-3xl font-bold text-purple-900">{{totalEmails}}</div>
+                    <div class="text-sm text-gray-500">Email Contacts</div>
+                </div>
+                <div class="stat-card bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                    <div class="text-3xl mb-2">📱</div>
+                    <div class="text-3xl font-bold text-purple-900">{{totalPhones}}</div>
+                    <div class="text-sm text-gray-500">Phone Contacts</div>
+                </div>
+                <div class="stat-card bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                    <div class="text-3xl mb-2">📨</div>
+                    <div class="text-3xl font-bold text-purple-900">{{messagesToday}}</div>
+                    <div class="text-sm text-gray-500">Sent Today</div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <!-- Today's Bible Verse -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-display font-bold text-purple-900 mb-4">📖 Today's Verse</h3>
+                    <div class="bg-purple-50 border-l-4 border-gold-400 p-4 rounded-r-lg mb-4">
+                        <p class="text-gray-700 italic leading-relaxed" id="verse-text">"{{verseText}}"</p>
+                        <p class="font-bold text-purple-900 mt-2">— {{verseReference}} ({{verseTranslation}})</p>
+                    </div>
+                    <form onsubmit="saveCustomVerseMessage(event)">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Custom note (sent with verse)</label>
+                        <textarea id="custom-verse-message" rows="2"
+                            class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mb-2"
+                            placeholder="Add a personal note from the pastor...">{{customBibleMessage}}</textarea>
+                        <button type="submit" class="btn-primary px-4 py-1.5 rounded-lg text-sm">Save Note</button>
+                    </form>
+                </div>
+
+                <!-- Upcoming Events -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-display font-bold text-purple-900 mb-4">🎉 Upcoming Celebrations</h3>
+
+                    <div class="mb-4">
+                        <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">🎂 Birthdays</h4>
+                        <div id="upcoming-birthdays" class="space-y-2">
+                            <p class="text-gray-400 text-sm">Loading...</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">💒 Anniversaries</h4>
+                        <div id="upcoming-anniversaries" class="space-y-2">
+                            <p class="text-gray-400 text-sm">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+                <h3 class="text-lg font-display font-bold text-purple-900 mb-4">⚙️ Notification Settings</h3>
+                <form onsubmit="saveSettings(event)">
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Send Time</label>
+                            <div class="flex gap-2">
+                                <input type="number" name="send_hour" min="0" max="23" value="8"
+                                    class="form-input w-20 px-3 py-2 border border-gray-300 rounded-lg" id="setting-send-hour">
+                                <span class="self-center">:</span>
+                                <input type="number" name="send_minute" min="0" max="59" value="0"
+                                    class="form-input w-20 px-3 py-2 border border-gray-300 rounded-lg" id="setting-send-minute">
+                                <span class="self-center text-sm text-gray-500">CST</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" name="bible_verse_enabled" checked class="w-4 h-4 rounded" id="setting-bible">
+                                <span class="text-sm text-gray-700">Daily Bible Verse</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" name="birthday_enabled" checked class="w-4 h-4 rounded" id="setting-birthday">
+                                <span class="text-sm text-gray-700">Birthday Wishes</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" name="anniversary_enabled" checked class="w-4 h-4 rounded" id="setting-anniversary">
+                                <span class="text-sm text-gray-700">Anniversary Wishes</span>
+                            </label>
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="btn-primary px-6 py-2 rounded-lg font-medium">Save Settings</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Recent Messages -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-display font-bold text-purple-900">📬 Recent Messages</h3>
+                    <a href="/admin/messages" class="text-purple-700 hover:text-purple-900 text-sm font-medium">View All →</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="data-table w-full text-sm">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3 text-left">Type</th>
+                                <th class="px-4 py-3 text-left">Recipient</th>
+                                <th class="px-4 py-3 text-left">Status</th>
+                                <th class="px-4 py-3 text-left">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-messages-body">
+                            <tr><td colspan="4" class="text-center py-4 text-gray-400">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Initialize dashboard data
+    document.addEventListener('DOMContentLoaded', function() {
+        // Populate upcoming birthdays
+        try {
+            const birthdays = JSON.parse('{{upcomingBirthdaysJSON}}' || '[]');
+            const bdayContainer = document.getElementById('upcoming-birthdays');
+            if (birthdays.length === 0) {
+                bdayContainer.innerHTML = '<p class="text-gray-400 text-sm">No birthdays in the next 7 days</p>';
+            } else {
+                bdayContainer.innerHTML = birthdays.map(b => `
+                    <div class="flex items-center justify-between bg-pink-50 rounded-lg px-3 py-2">
+                        <span class="font-medium text-gray-700">${b.name}</span>
+                        <span class="text-sm ${b.daysAway === 0 ? 'text-pink-600 font-bold' : 'text-gray-500'}">${b.label}</span>
+                    </div>
+                `).join('');
+            }
+        } catch(e) {}
+
+        // Populate upcoming anniversaries
+        try {
+            const anniversaries = JSON.parse('{{upcomingAnniversariesJSON}}' || '[]');
+            const annivContainer = document.getElementById('upcoming-anniversaries');
+            if (anniversaries.length === 0) {
+                annivContainer.innerHTML = '<p class="text-gray-400 text-sm">No anniversaries in the next 7 days</p>';
+            } else {
+                annivContainer.innerHTML = anniversaries.map(a => `
+                    <div class="flex items-center justify-between bg-purple-50 rounded-lg px-3 py-2">
+                        <span class="font-medium text-gray-700">${a.name}</span>
+                        <span class="text-sm ${a.daysAway === 0 ? 'text-purple-600 font-bold' : 'text-gray-500'}">${a.label}</span>
+                    </div>
+                `).join('');
+            }
+        } catch(e) {}
+
+        // Populate recent messages
+        try {
+            const messages = JSON.parse('{{recentMessagesJSON}}' || '[]');
+            const tbody = document.getElementById('recent-messages-body');
+            if (messages.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-400">No messages sent yet</td></tr>';
+            } else {
+                const typeIcons = { bible_verse: '📖', birthday: '🎂', anniversary: '💒', manual: '✉️' };
+                tbody.innerHTML = messages.map(m => `
+                    <tr class="border-b border-gray-50">
+                        <td class="px-4 py-2">${typeIcons[m.message_type] || '📧'} ${m.message_type}</td>
+                        <td class="px-4 py-2">${m.member_name || 'Unknown'}</td>
+                        <td class="px-4 py-2"><span class="badge ${m.status === 'sent' ? 'badge-success' : 'badge-danger'}">${m.status}</span></td>
+                        <td class="px-4 py-2 text-gray-500">${formatDate(m.sent_at)}</td>
+                    </tr>
+                `).join('');
+            }
+        } catch(e) {}
+
+        // Populate settings
+        try {
+            const settings = JSON.parse('{{settingsJSON}}' || '{}');
+            if (settings.send_hour) document.getElementById('setting-send-hour').value = settings.send_hour;
+            if (settings.send_minute) document.getElementById('setting-send-minute').value = settings.send_minute;
+            if (settings.bible_verse_enabled === 'false') document.getElementById('setting-bible').checked = false;
+            if (settings.birthday_enabled === 'false') document.getElementById('setting-birthday').checked = false;
+            if (settings.anniversary_enabled === 'false') document.getElementById('setting-anniversary').checked = false;
+        } catch(e) {}
+    });
+</script>

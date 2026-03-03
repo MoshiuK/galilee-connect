@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Manage Lessons — Galilee Bible Class{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="page-header-row">
+        <h1 class="page-title">📚 Lessons</h1>
+        <a href="/admin/lessons/new" class="btn btn-primary">➕ New Lesson</a>
+    </div>
+
+    {% if lessons %}
+    <div class="lessons-table">
+        {% for lesson in lessons %}
+        <div class="lesson-row">
+            <div class="lesson-row-main">
+                <h3>{{ lesson.title }}</h3>
+                <div class="lesson-row-meta">
+                    📅 {{ lesson.lesson_date.strftime('%b %d, %Y') }}
+                    {% if lesson.scripture_reference %}
+                    · 📖 {{ lesson.scripture_reference }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="lesson-row-actions">
+                <span class="badge {% if lesson.status == 'published' %}badge-success{% else %}badge-draft{% endif %}">
+                    {{ lesson.status }}
+                </span>
+                <a href="/lesson/{{ lesson.id }}" class="btn btn-small btn-secondary">👁 View</a>
+                <a href="/admin/lessons/{{ lesson.id }}/edit" class="btn btn-small btn-secondary">Edit</a>
+                <a href="/admin/lessons/{{ lesson.id }}/questions" class="btn btn-small btn-secondary">Questions</a>
+                <a href="/admin/lessons/{{ lesson.id }}/submissions" class="btn btn-small btn-secondary">Submissions</a>
+                {% if lesson.status == 'draft' %}
+                <button class="btn btn-small btn-primary" onclick="publishLesson({{ lesson.id }})">Publish</button>
+                {% endif %}
+                <button class="btn btn-small btn-danger" onclick="deleteLesson({{ lesson.id }}, '{{ lesson.title | e }}')">Delete</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align:center; padding:2rem;">
+        <p style="color:#666;">No lessons yet. Create your first lesson!</p>
+        <a href="/admin/lessons/new" class="btn btn-primary" style="margin-top:1rem;">➕ Create Lesson</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+async function publishLesson(id) {
+    if (!confirm('Publish this lesson? Members will be able to see it.')) return;
+    try {
+        var resp = await fetch('/api/admin/lessons/' + id + '/publish', {method:'POST'});
+        var data = await resp.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message);
+        }
+    } catch(e) {
+        alert('Error publishing lesson');
+    }
+}
+
+async function deleteLesson(id, title) {
+    if (!confirm('Delete "' + title + '"? This cannot be undone.')) return;
+    try {
+        var resp = await fetch('/api/admin/lessons/' + id, {method:'DELETE'});
+        var data = await resp.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message);
+        }
+    } catch(e) {
+        alert('Error deleting lesson');
+    }
+}
+</script>
+{% endblock %}

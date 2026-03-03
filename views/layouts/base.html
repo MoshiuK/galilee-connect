@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} - Galilee Connect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        purple: {
+                            50: '#f6f1fa',
+                            100: '#ece3f5',
+                            200: '#d4c0e8',
+                            300: '#b896d6',
+                            400: '#9966c4',
+                            500: '#7b3fa8',
+                            600: '#5c2382',
+                            700: '#4a1a6b',
+                            800: '#3d1559',
+                            900: '#2d0f42',
+                            950: '#1a0927'
+                        },
+                        gold: {
+                            100: '#fdf6e3',
+                            200: '#faecc0',
+                            300: '#f2d88a',
+                            400: '#d4a843',
+                            500: '#c49a38',
+                            600: '#b08a2e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="min-h-screen bg-gray-50 font-sans">
+    {{content}}
+    <script src="/js/app.js"></script>
+</body>
+</html>

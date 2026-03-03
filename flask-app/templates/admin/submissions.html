@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Submissions — {{ lesson.title }}{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <a href="/admin/lessons" class="back-link">← Back to Lessons</a>
+        <h1>Submissions: {{ lesson.title }}</h1>
+        <p class="lesson-meta-small">
+            {{ lesson.lesson_date.strftime('%B %d, %Y') }}
+            · {{ submitter_ids | length }} of {{ members | length }} members submitted
+        </p>
+    </div>
+
+    {% if members %}
+    {% for member in members %}
+    <div class="member-submission-card {% if member.id in submitter_ids %}submitted{% else %}not-submitted{% endif %}">
+        <div class="member-sub-header">
+            <h3>{{ member.full_name }}</h3>
+            {% if member.id in submitter_ids %}
+            <span class="badge badge-success">✓ Submitted</span>
+            {% else %}
+            <span class="badge badge-pending">○ Not Submitted</span>
+            {% endif %}
+        </div>
+
+        {% if member.id in submitter_ids %}
+        <div class="member-answers">
+            {% for q in questions %}
+            <div class="answer-row">
+                <div class="answer-question">
+                    <span class="q-type-badge-small">{{ q.question_type | replace('_',' ') | title }}</span>
+                    {{ q.question_text }}
+                </div>
+                {% set resp = response_map.get(member.id, {}).get(q.id) %}
+                {% if resp %}
+                <div class="answer-text">
+                    {{ resp.answer_text or '(no answer)' }}
+                    {% if resp.is_correct is not none %}
+                    {% if resp.is_correct %}
+                    <span class="grade-correct">✓</span>
+                    {% else %}
+                    <span class="grade-incorrect">✗</span>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="answer-text no-answer">—</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="card" style="text-align:center; padding:2rem;">
+        <p style="color:#666;">No members yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

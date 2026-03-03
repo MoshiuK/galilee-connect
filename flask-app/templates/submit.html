@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Submit Answers — {{ lesson.title }}{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <a href="/lesson/{{ lesson.id }}" class="back-link">← Back to Lesson</a>
+        <h1>{{ lesson.title }}</h1>
+        <p class="lesson-meta-small">{{ lesson.lesson_date.strftime('%B %d, %Y') }} · {{ lesson.scripture_reference or '' }}</p>
+    </div>
+
+    {% if not can_edit %}
+    <div class="alert alert-warning">
+        ⚠️ This lesson's submission deadline has passed. You can no longer edit your answers.
+    </div>
+    {% endif %}
+
+    <form id="submitForm" onsubmit="return handleSubmit(event)">
+        {% for q in questions %}
+        <div class="question-card" data-qid="{{ q.id }}">
+            <div class="question-number">Question {{ loop.index }}</div>
+            <div class="question-text">{{ q.question_text }}</div>
+
+            {% if q.question_type == 'multiple_choice' %}
+            <div class="mc-options">
+                {% for opt in q.options %}
+                <label class="mc-option">
+                    <input type="radio" name="q_{{ q.id }}" value="{{ opt }}"
+                           {% if existing.get(q.id) == opt %}checked{% endif %}
+                           {% if not can_edit %}disabled{% endif %}>
+                    <span class="mc-label">{{ opt }}</span>
+                </label>
+                {% endfor %}
+            </div>
+
+            {% elif q.question_type == 'fill_blank' %}
+            <div class="fill-blank">
+                <input type="text" name="q_{{ q.id }}" class="form-input"
+                       value="{{ existing.get(q.id, '') }}"
+                       placeholder="Type your answer here..."
+                       {% if not can_edit %}disabled{% endif %}>
+            </div>
+
+            {% elif q.question_type == 'essay' %}
+            <div class="essay-input">
+                <textarea name="q_{{ q.id }}" class="form-textarea" rows="5"
+                          placeholder="Write your response here..."
+                          {% if not can_edit %}disabled{% endif %}>{{ existing.get(q.id, '') }}</textarea>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        {% if can_edit %}
+        <div id="submitMsg" class="submit-message" style="display:none;"></div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="submitBtn">
+            ✅ Submit Answers
+        </button>
+        {% endif %}
+    </form>
+</div>
+
+<script>
+async function handleSubmit(e) {
+    e.preventDefault();
+    var btn = document.getElementById('submitBtn');
+    var msgDiv = document.getElementById('submitMsg');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    msgDiv.style.display = 'none';
+
+    var answers = {};
+    var cards = document.querySelectorAll('.question-card');
+    cards.forEach(function(card) {
+        var qid = card.getAttribute('data-qid');
+        var radio = card.querySelector('input[type="radio"]:checked');
+        if (radio) {
+            answers[qid] = radio.value;
+            return;
+        }
+        var textInput = card.querySelector('input[type="text"]');
+        if (textInput) {
+            answers[qid] = textInput.value;
+            return;
+        }
+        var textarea = card.querySelector('textarea');
+        if (textarea) {
+            answers[qid] = textarea.value;
+        }
+    });
+
+    try {
+        var resp = await fetch('/api/submit/{{ lesson.id }}', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({answers: answers})
+        });
+        var data = await resp.json();
+        if (data.success) {
+            msgDiv.className = 'submit-message success';
+            msgDiv.textContent = data.message;
+            msgDiv.style.display = 'block';
+            btn.textContent = '✅ Submitted!';
+            setTimeout(function() {
+                window.location.href = '/lesson/{{ lesson.id }}';
+            }, 1500);
+        } else {
+            msgDiv.className = 'submit-message error';
+            msgDiv.textContent = data.message;
+            msgDiv.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = '✅ Submit Answers';
+        }
+    } catch(err) {
+        msgDiv.className = 'submit-message error';
+        msgDiv.textContent = 'Connection error. Please try again.';
+        msgDiv.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = '✅ Submit Answers';
+    }
+    return false;
+}
+</script>
+{% endblock %}

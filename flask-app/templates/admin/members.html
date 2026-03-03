@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block title %}Members — Galilee Bible Class{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="page-header-row">
+        <h1 class="page-title">👥 Members</h1>
+        <button class="btn btn-primary" onclick="showAddMember()">➕ Add Member</button>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div id="addMemberForm" class="card form-card" style="display:none; margin-bottom:1.5rem;">
+        <h2>Add New Member</h2>
+        <form onsubmit="return handleAddMember(event)">
+            <div class="form-row">
+                <div class="form-group form-half">
+                    <label>Username *</label>
+                    <input type="text" id="new_username" class="form-input" required placeholder="Username for login"
+                           autocapitalize="none" autocorrect="off">
+                </div>
+                <div class="form-group form-half">
+                    <label>Full Name *</label>
+                    <input type="text" id="new_fullname" class="form-input" required placeholder="Full name">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group form-half">
+                    <label>Email</label>
+                    <input type="email" id="new_email" class="form-input" placeholder="Email (optional)">
+                </div>
+                <div class="form-group form-half">
+                    <label>Phone</label>
+                    <input type="text" id="new_phone" class="form-input" placeholder="Phone (optional)">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group form-half">
+                    <label>Birthday</label>
+                    <input type="date" id="new_birthday" class="form-input">
+                </div>
+                <div class="form-group form-half">
+                    <label>Anniversary</label>
+                    <input type="date" id="new_anniversary" class="form-input">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group form-half">
+                    <label>Password *</label>
+                    <input type="text" id="new_password" class="form-input" required placeholder="Initial password">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Role</label>
+                <select id="new_role" class="form-input">
+                    <option value="member">Member</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div id="addMemberMsg" class="submit-message" style="display:none;"></div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="addMemberBtn">Add Member</button>
+                <button type="button" class="btn btn-secondary" onclick="hideAddMember()">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Members List -->
+    <div class="members-list">
+        {% for member in members %}
+        <div class="member-card" id="member-{{ member.id }}">
+            <div class="member-info">
+                <h3>{{ member.full_name }}
+                    {% if not member.is_active %}
+                    <span class="badge badge-inactive">Inactive</span>
+                    {% endif %}
+                </h3>
+                <p class="member-meta">
+                    @{{ member.username }} · {{ member.role | title }}
+                    {% if member.email %} · {{ member.email }}{% endif %}{% if member.phone_number %} · {{ member.phone_number }}{% endif %}
+                    · Joined {{ member.created_at.strftime('%b %d, %Y') }}
+                </p>
+                <p class="member-meta" style="font-size:1rem; color:#666;">
+                    {% if member.birthday %}🎂 Birthday: {{ member.birthday.strftime('%b %d') }}{% endif %}
+                    {% if member.anniversary %}  💍 Anniversary: {{ member.anniversary.strftime('%b %d') }}{% endif %}
+                </p>
+            </div>
+            <div class="member-actions">
+                <button class="btn btn-small btn-secondary" onclick="toggleEditMember({{ member.id }})">Edit</button>
+                {% if member.role != 'admin' or member.id != current_user.id %}
+                <button class="btn btn-small btn-danger" onclick="deleteMember({{ member.id }}, '{{ member.full_name | e }}')">Delete</button>
+                {% endif %}
+            </div>
+
+            <!-- Edit inline -->
+            <div class="member-edit" id="edit-{{ member.id }}" style="display:none;">
+                <div class="form-row">
+                    <div class="form-group form-half">
+                        <label>Full Name</label>
+                        <input type="text" id="edit_name_{{ member.id }}" class="form-input" value="{{ member.full_name }}">
+                    </div>
+                    <div class="form-group form-half">
+                        <label>Email</label>
+                        <input type="email" id="edit_email_{{ member.id }}" class="form-input" value="{{ member.email or '' }}">
+                    </div>
+                    <div class="form-group form-half">
+                        <label>Phone</label>
+                        <input type="text" id="edit_phone_{{ member.id }}" class="form-input" value="{{ member.phone_number or '' }}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group form-half">
+                        <label>🎂 Birthday</label>
+                        <input type="date" id="edit_birthday_{{ member.id }}" class="form-input" value="{{ member.birthday.strftime('%Y-%m-%d') if member.birthday else '' }}">
+                    </div>
+                    <div class="form-group form-half">
+                        <label>💍 Anniversary</label>
+                        <input type="date" id="edit_anniversary_{{ member.id }}" class="form-input" value="{{ member.anniversary.strftime('%Y-%m-%d') if member.anniversary else '' }}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group form-half">
+                        <label>New Password (leave blank to keep)</label>
+                        <input type="text" id="edit_pass_{{ member.id }}" class="form-input" placeholder="New password">
+                    </div>
+                    <div class="form-group form-half">
+                        <label>Status</label>
+                        <select id="edit_active_{{ member.id }}" class="form-input">
+                            <option value="true" {% if member.is_active %}selected{% endif %}>Active</option>
+                            <option value="false" {% if not member.is_active %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-small" onclick="saveMember({{ member.id }})">Save</button>
+                <button class="btn btn-secondary btn-small" onclick="toggleEditMember({{ member.id }})">Cancel</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function showAddMember() {
+    document.getElementById('addMemberForm').style.display = 'block';
+}
+function hideAddMember() {
+    document.getElementById('addMemberForm').style.display = 'none';
+}
+
+function toggleEditMember(id) {
+    var el = document.getElementById('edit-' + id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+async function handleAddMember(e) {
+    e.preventDefault();
+    var btn = document.getElementById('addMemberBtn');
+    var msgDiv = document.getElementById('addMemberMsg');
+    btn.disabled = true;
+    msgDiv.style.display = 'none';
+
+    try {
+        var resp = await fetch('/api/admin/members', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                username: document.getElementById('new_username').value,
+                full_name: document.getElementById('new_fullname').value,
+                email: document.getElementById('new_email').value,
+                phone_number: document.getElementById('new_phone').value,
+                birthday: document.getElementById('new_birthday').value || null,
+                anniversary: document.getElementById('new_anniversary').value || null,
+                password: document.getElementById('new_password').value,
+                role: document.getElementById('new_role').value
+            })
+        });
+        var data = await resp.json();
+        if (data.success) {
+            msgDiv.className = 'submit-message success';
+            msgDiv.textContent = data.message;
+            msgDiv.style.display = 'block';
+            setTimeout(function() { window.location.reload(); }, 800);
+        } else {
+            msgDiv.className = 'submit-message error';
+            msgDiv.textContent = data.message;
+            msgDiv.style.display = 'block';
+            btn.disabled = false;
+        }
+    } catch(err) {
+        msgDiv.className = 'submit-message error';
+        msgDiv.textContent = 'Error adding member';
+        msgDiv.style.display = 'block';
+        btn.disabled = false;
+    }
+    return false;
+}
+
+async function saveMember(id) {
+    var payload = {
+        full_name: document.getElementById('edit_name_' + id).value,
+        email: document.getElementById('edit_email_' + id).value,
+        phone_number: document.getElementById('edit_phone_' + id).value,
+        birthday: document.getElementById('edit_birthday_' + id).value || null,
+        anniversary: document.getElementById('edit_anniversary_' + id).value || null,
+        password: document.getElementById('edit_pass_' + id).value,
+        is_active: document.getElementById('edit_active_' + id).value === 'true'
+    };
+
+    try {
+        var resp = await fetch('/api/admin/members/' + id, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        var data = await resp.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message);
+        }
+    } catch(e) {
+        alert('Error updating member');
+    }
+}
+
+async function deleteMember(id, name) {
+    if (!confirm('Delete member "' + name + '"? This will also delete their submissions.')) return;
+    try {
+        var resp = await fetch('/api/admin/members/' + id, {method:'DELETE'});
+        var data = await resp.json();
+        if (data.success) {
+            document.getElementById('member-' + id).remove();
+        } else {
+            alert(data.message);
+        }
+    } catch(e) {
+        alert('Error deleting member');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}My Submissions — Galilee Bible Class{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="page-title">My Submissions</h1>
+
+    {% if all_published %}
+    <div class="submissions-list">
+        {% for lesson in all_published %}
+        <div class="submission-card">
+            <div class="submission-info">
+                <h3>{{ lesson.title }}</h3>
+                <p class="submission-meta">
+                    📅 {{ lesson.lesson_date.strftime('%B %d, %Y') }}
+                    {% if lesson.scripture_reference %}
+                    · 📖 {{ lesson.scripture_reference }}
+                    {% endif %}
+                </p>
+            </div>
+            <div class="submission-status">
+                {% if lesson.id in submitted_ids %}
+                <span class="badge badge-success">✓ Submitted</span>
+                <a href="/my-submissions/{{ lesson.id }}" class="btn btn-small btn-secondary">View</a>
+                {% else %}
+                <span class="badge badge-pending">○ Pending</span>
+                <a href="/submit/{{ lesson.id }}" class="btn btn-small btn-primary">Submit</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align:center; padding:2rem;">
+        <p style="color:#666;">No lessons available yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

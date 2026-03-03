@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}{{ lesson.title }} — Galilee Bible Class{% endblock %}
+{% block content %}
+<div class="container">
+    <!-- Lesson selector -->
+    <div class="lesson-nav">
+        <select id="lessonSelect" onchange="if(this.value) window.location.href=this.value;" class="lesson-selector">
+            {% for l in all_lessons %}
+            <option value="/lesson/{{ l.id }}" {% if l.id == lesson.id %}selected{% endif %}>
+                {{ l.lesson_date.strftime('%b %d, %Y') }} — {{ l.title }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="lesson-card">
+        <div class="lesson-header">
+            <h1 class="lesson-title">{{ lesson.title }}</h1>
+            <div class="lesson-meta">
+                <span class="lesson-date">📅 {{ lesson.lesson_date.strftime('%B %d, %Y') }}</span>
+                {% if has_submitted %}
+                <span class="badge badge-success">✓ Submitted</span>
+                {% else %}
+                <span class="badge badge-pending">○ Not Submitted</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if lesson.scripture_reference %}
+        <div class="scripture-ref">
+            <span class="scripture-icon">📖</span>
+            <span>{{ lesson.scripture_reference }}</span>
+        </div>
+        {% endif %}
+
+        {% if lesson.description %}
+        <p class="lesson-description">{{ lesson.description }}</p>
+        {% endif %}
+
+        <div class="lesson-content">
+            {{ lesson.content_html | safe }}
+        </div>
+
+        {% if lesson.media %}
+        <div class="media-section">
+            <h3>📎 Attachments</h3>
+            <div class="media-list">
+                {% for m in lesson.media %}
+                <div class="media-item">
+                    {% if m.media_type == 'image' %}
+                    <div class="media-link">
+                        <img src="/uploads/{{ m.file_path }}" alt="{{ m.filename }}" class="media-image-full">
+                        <a href="/uploads/{{ m.file_path }}" target="_blank" class="media-pdf-link">Open Full Size ↗</a>
+                    </div>
+                    {% elif m.media_type == 'pdf' %}
+                    <div class="media-link">
+                        <span>📄 {{ m.filename }}</span>
+                        <iframe src="/uploads/{{ m.file_path }}" class="media-pdf-embed" title="{{ m.filename }}"></iframe>
+                        <a href="/uploads/{{ m.file_path }}" target="_blank" class="media-pdf-link">
+                            Open PDF in new tab ↗
+                        </a>
+                    </div>
+                    {% elif m.media_type == 'html' %}
+                    <div class="media-link">
+                        <span>📄 {{ m.filename }}</span>
+                        <iframe src="/uploads/{{ m.file_path }}" class="media-html-embed" title="{{ m.filename }}" sandbox="allow-scripts allow-same-origin"></iframe>
+                        <a href="/uploads/{{ m.file_path }}" target="_blank" class="media-pdf-link">
+                            Open in new tab ↗
+                        </a>
+                    </div>
+                    {% elif m.media_type == 'audio' %}
+                    <div class="audio-player">
+                        <span>🎵 {{ m.filename }}</span>
+                        <audio controls preload="none">
+                            <source src="/uploads/{{ m.file_path }}">
+                        </audio>
+                    </div>
+                    {% else %}
+                    <a href="/uploads/{{ m.file_path }}" target="_blank" class="media-link">
+                        📄 {{ m.filename }}
+                    </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if lesson.questions %}
+        <div class="lesson-actions">
+            {% if has_submitted %}
+            <a href="/my-submissions/{{ lesson.id }}" class="btn btn-secondary">View My Answers</a>
+            <a href="/submit/{{ lesson.id }}" class="btn btn-primary">Edit Answers</a>
+            {% else %}
+            <a href="/submit/{{ lesson.id }}" class="btn btn-primary btn-block">
+                ✏️ Answer Questions & Submit
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

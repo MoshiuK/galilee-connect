@@ -1,0 +1,73 @@
+# Galilee Connect Project Memory
+
+## Production Server
+- **IP**: 155.138.232.166
+- **Location**: Atlanta (Vultr VPS)
+- **OS**: AlmaLinux 8.10
+- **SSH User**: root
+- **SSH Password**: =t6RcM-Jp}4=,ngh
+- **Domain**: study.galileembchurch.com (via nginx SSL + Let's Encrypt)
+
+## Production Apps Running on Server
+
+### 1. Galilee Bible Class (Flask) — PRIMARY APP
+- **Path**: `/opt/galilee-bible/`
+- **Service**: `galilee-bible.service`
+- **Port**: 5003
+- **Runtime**: Python 3.9 (venv) + Gunicorn + Flask
+- **Start command**: `gunicorn --bind 0.0.0.0:5003 --workers 2 --timeout 120 app:app`
+- **Config**: `/opt/galilee-bible/config.py` (env-overridable SMTP, APP_BASE_URL, etc.)
+- **Database**: `/opt/galilee-bible/galilee.db` (SQLite)
+- **Features**: Multi-user roles (admin/member), lessons with questions (MC/fill-blank/essay), student submissions, auto-grading, participation tracking, PWA, auto-approved user registration, forgot/reset password, login via username or email, lesson attachments (images, PDFs, audio, HTML)
+
+### 2. Galilee Connect Node (Node.js) — SECONDARY (not on domain)
+- **Path**: `/opt/galilee-connect-node/`
+- **Service**: `galilee-connect-node.service`
+- **Port**: 5010
+- **Runtime**: Node.js
+- **Features**: Church notifications (daily verse, birthday), admin-only auth
+- **Note**: Was previously on study.galileembchurch.com, switched to Flask app on 2026-02-16
+
+### 3. Cloudflare Tunnel (legacy, can be disabled)
+- **Service**: `galilee-tunnel.service`
+- **Note**: Originally exposed port 5003. Domain now served via nginx SSL directly.
+
+## Nginx Config
+- **Config file**: `/etc/nginx/conf.d/study-galilee.conf`
+- **Domain**: `study.galileembchurch.com` → `proxy_pass http://127.0.0.1:5003` (Flask app)
+- **SSL**: Let's Encrypt via Certbot
+- **Backup**: `study-galilee.conf.bak-node-20260216` (old Node routing to port 5010)
+
+## SMTP Configuration (updated 2026-02-16)
+- **Host**: smtp.gmail.com (Google Workspace)
+- **Port**: 587 (STARTTLS)
+- **User**: moshiu@knoxmediagroupinc.org
+- **From**: moshiu@knoxmediagroupinc.org
+- **App Password**: vace jfzn ozbo prps
+- **Admin notify emails**: moshiu@knoxmediagroupinc.org, support@eritn.com
+- **Note**: Switched from mail.eritn.com because Vultr blocks outbound SMTP to that host. Gmail SMTP (port 587) works fine from Vultr.
+
+## Key Environment Variables (set in systemd service)
+- `APP_BASE_URL=https://study.galileembchurch.com`
+- `PATH=/opt/galilee-bible/venv/bin:/usr/bin`
+
+## Local Project Structure
+- **Repo**: https://github.com/MoshiuK/openclaw-workspace.git (branch: main)
+- **Local path**: /Users/moshiut.knox/.openclaw/workspace/projects/galilee-connect/
+- **Flask app local copy**: `flask-app/` subdirectory
+- **Node app**: root of project
+
+## Deployment
+1. Update files locally in `flask-app/`
+2. SCP files to `root@155.138.232.166:/opt/galilee-bible/` (use sshpass: `sshpass -p '=t6RcM-Jp}4=,ngh' scp -o StrictHostKeyChecking=no`)
+3. Templates go to `/opt/galilee-bible/templates/`, CSS to `/opt/galilee-bible/static/css/`
+4. `systemctl restart galilee-bible`
+5. Verify at https://study.galileembchurch.com
+
+## Changes Log (2026-02-16)
+- **HTML attachments**: Added HTML to allowed upload types, renders in sandboxed iframe on lesson page
+- **End Times lesson**: Replaced PNG flow chart with interactive `endtimes-flow.html` (lesson ID 2)
+- **Auto-approve registration**: New members are active immediately (`is_active_user=True`), no admin approval needed
+- **Login accepts email**: Users can now sign in with username OR email address
+- **SMTP switched to Gmail**: From `mail.eritn.com` → `smtp.gmail.com` (Google Workspace) — password resets and notifications now working
+- **Updated login UI**: Label says "Username or Email", signup button says "Sign Up" (removed "Submit for Approval" language)

@@ -1,0 +1,53 @@
+<!-- Church Hero Section -->
+<div class="church-hero text-center py-12 px-4 relative">
+    <div class="relative z-10">
+        <div class="text-5xl mb-3">✝</div>
+        <h1 class="text-2xl md:text-3xl font-display font-bold text-gold-400 mb-1">{{churchName}}</h1>
+        <p class="text-purple-300 text-sm">{{churchCity}}</p>
+    </div>
+</div>
+
+<!-- Unsubscribe Form -->
+<div class="max-w-md mx-auto px-4 py-10 -mt-6 relative z-10">
+    <div class="bg-white rounded-2xl shadow-xl p-8">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-display font-bold text-purple-900 mb-2">Manage Preferences</h2>
+            <p class="text-gray-600">We're sorry to see you go. You can choose which notifications to unsubscribe from below.</p>
+        </div>
+
+        <form onsubmit="submitUnsubscribe(event)">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Your Email Address</label>
+                <input type="email" name="email" required
+                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg"
+                    placeholder="your@email.com">
+            </div>
+
+            <div class="mb-6 space-y-3">
+                <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input type="checkbox" name="unsubscribe_email" value="true" class="w-5 h-5 rounded text-purple-700">
+                    <div>
+                        <span class="font-medium text-gray-700">Unsubscribe from emails</span>
+                        <p class="text-sm text-gray-500">Stop receiving daily verses, birthday & anniversary wishes via email</p>
+                    </div>
+                </label>
+
+                <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input type="checkbox" name="unsubscribe_sms" value="true" class="w-5 h-5 rounded text-purple-700">
+                    <div>
+                        <span class="font-medium text-gray-700">Unsubscribe from SMS</span>
+                        <p class="text-sm text-gray-500">Stop receiving text message notifications</p>
+                    </div>
+                </label>
+            </div>
+
+            <button type="submit" class="w-full bg-gray-700 hover:bg-gray-800 text-white py-3 rounded-lg font-semibold">
+                Update Preferences
+            </button>
+
+            <p class="text-center mt-4">
+                <a href="/" class="text-purple-700 hover:text-purple-900 text-sm font-medium">← Back to Home</a>
+            </p>
+        </form>
+    </div>
+</div>

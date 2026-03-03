@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Participation — Galilee Bible Class{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="page-title">📋 Participation Report</h1>
+
+    {% if lessons and members %}
+    <div class="participation-table-wrap">
+        <table class="participation-table">
+            <thead>
+                <tr>
+                    <th class="sticky-col">Member</th>
+                    {% for lesson in lessons %}
+                    <th class="lesson-col">
+                        <div class="lesson-col-title">{{ lesson.title[:20] }}{% if lesson.title|length > 20 %}...{% endif %}</div>
+                        <div class="lesson-col-date">{{ lesson.lesson_date.strftime('%m/%d') }}</div>
+                    </th>
+                    {% endfor %}
+                    <th>Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in members %}
+                <tr>
+                    <td class="sticky-col">{{ member.full_name }}</td>
+                    {% set ns = namespace(count=0) %}
+                    {% for lesson in lessons %}
+                    <td class="participation-cell">
+                        {% if member.id in participation.get(lesson.id, set()) %}
+                        <span class="p-yes">✓</span>
+                        {% set ns.count = ns.count + 1 %}
+                        {% else %}
+                        <span class="p-no">—</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                    <td class="participation-rate">
+                        {% if lessons|length > 0 %}
+                        {{ ((ns.count / lessons|length) * 100) | round | int }}%
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Summary -->
+    <div class="card" style="margin-top:1.5rem;">
+        <h2>Summary</h2>
+        <div class="participation-summary">
+            {% for lesson in lessons %}
+            <div class="summary-row">
+                <span>{{ lesson.title }} ({{ lesson.lesson_date.strftime('%b %d') }})</span>
+                <span>{{ participation.get(lesson.id, set()) | length }} / {{ members | length }} submitted</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="text-align:center; padding:2rem;">
+        <p style="color:#666;">No published lessons or members yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

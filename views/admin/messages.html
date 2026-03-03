@@ -1,0 +1,135 @@
+<!-- Admin Layout -->
+<div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar w-64 hidden md:block p-6 flex-shrink-0">
+        <div class="text-center mb-8">
+            <div class="text-4xl mb-2">✝</div>
+            <h1 class="text-lg font-display font-bold text-gold-400">Galilee Connect</h1>
+            <p class="text-purple-300 text-xs mt-1">Admin Dashboard</p>
+        </div>
+        <nav class="space-y-1">
+            <a href="/admin" class="flex items-center gap-3 px-4 py-3 rounded-lg text-purple-200">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="/admin/members" class="flex items-center gap-3 px-4 py-3 rounded-lg text-purple-200">
+                <span>👥</span> Members
+            </a>
+            <a href="/admin/messages" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white active">
+                <span>✉️</span> Messages
+            </a>
+            <a href="/admin/lessons" class="flex items-center gap-3 px-4 py-3 rounded-lg text-purple-200">
+                <span>📖</span> Lessons
+            </a>
+            <div class="border-t border-purple-800 my-4"></div>
+            <a href="/" target="_blank" class="flex items-center gap-3 px-4 py-3 rounded-lg text-purple-300 text-sm">
+                <span>🌐</span> View Registration Page
+            </a>
+            <a href="#" onclick="showChangePasswordModal()" class="flex items-center gap-3 px-4 py-3 rounded-lg text-purple-300 text-sm">
+                <span>🔑</span> Change Password
+            </a>
+            <a href="/admin/logout" class="flex items-center gap-3 px-4 py-3 rounded-lg text-purple-300 text-sm">
+                <span>🚪</span> Sign Out
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Mobile Header -->
+    <div class="md:hidden fixed top-0 left-0 right-0 bg-purple-900 text-white p-4 z-50 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <span class="text-xl">✝</span>
+            <span class="font-display font-bold text-gold-400">Galilee Connect</span>
+        </div>
+        <div class="flex gap-3">
+            <a href="/admin" class="text-white text-sm">📊</a>
+            <a href="/admin/members" class="text-white text-sm">👥</a>
+            <a href="/admin/messages" class="text-white text-sm">✉️</a>
+            <a href="/admin/lessons" class="text-white text-sm">📖</a>
+            <a href="/admin/logout" class="text-white text-sm">🚪</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 md:p-8 md:mt-0 mt-16">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-3xl font-display font-bold text-purple-900">Messages</h2>
+                    <p class="text-gray-500">Message history and manual sends</p>
+                </div>
+                <div class="flex gap-3 mt-4 md:mt-0">
+                    <button onclick="triggerNotifications()"
+                        class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium text-sm">
+                        🔔 Run Daily Notifications
+                    </button>
+                    <button onclick="showSendMessageModal()"
+                        class="btn-primary px-4 py-2 rounded-lg font-medium text-sm">
+                        ✉️ Send Message
+                    </button>
+                </div>
+            </div>
+
+            <!-- Message Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="message-stats">
+                <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">Total Sent</div>
+                    <div class="text-2xl font-bold text-purple-900" id="stat-total">—</div>
+                </div>
+                <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">Delivered</div>
+                    <div class="text-2xl font-bold text-green-600" id="stat-delivered">—</div>
+                </div>
+                <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">Failed</div>
+                    <div class="text-2xl font-bold text-red-600" id="stat-failed">—</div>
+                </div>
+                <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">Members</div>
+                    <div class="text-2xl font-bold text-purple-900" id="stat-members">—</div>
+                </div>
+            </div>
+
+            <!-- Message Log -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-4 border-b border-gray-100">
+                    <h3 class="font-display font-bold text-purple-900">Message History</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="data-table w-full text-sm">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3 text-left">Type</th>
+                                <th class="px-4 py-3 text-left">Recipient</th>
+                                <th class="px-4 py-3 text-left">Channel</th>
+                                <th class="px-4 py-3 text-left">Subject / Content</th>
+                                <th class="px-4 py-3 text-left">Status</th>
+                                <th class="px-4 py-3 text-left">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="messages-table-body">
+                            <tr><td colspan="6" class="text-center py-8 text-gray-400">Loading messages...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="messages-pagination" class="p-4"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        loadMessages();
+
+        // Load stats
+        try {
+            const data = await apiCall('/api/stats');
+            if (data.stats) {
+                document.getElementById('stat-total').textContent = data.stats.totalMessages;
+                document.getElementById('stat-delivered').textContent = data.stats.messagesSent;
+                document.getElementById('stat-failed').textContent = data.stats.messagesFailed;
+                document.getElementById('stat-members').textContent = data.stats.totalMembers;
+            }
+        } catch(e) {}
+    });
+</script>

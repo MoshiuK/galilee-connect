@@ -1,0 +1,202 @@
+/* Galilee Connect - Custom Styles */
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3, .font-display {
+    font-family: 'Playfair Display', serif;
+}
+
+/* Admin sidebar */
+.admin-sidebar {
+    background: linear-gradient(180deg, #2d0f42 0%, #3d1559 100%);
+    min-height: 100vh;
+}
+
+.admin-sidebar a {
+    transition: all 0.2s;
+}
+
+.admin-sidebar a:hover,
+.admin-sidebar a.active {
+    background-color: rgba(212, 168, 67, 0.15);
+    color: #d4a843;
+}
+
+/* Cards */
+.stat-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Table styles */
+.data-table th {
+    background-color: #f9f7fb;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: #4a1a6b;
+}
+
+.data-table tr:hover td {
+    background-color: #faf8fc;
+}
+
+/* Form inputs */
+.form-input {
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+    border-color: #4a1a6b;
+    box-shadow: 0 0 0 3px rgba(74, 26, 107, 0.1);
+    outline: none;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #4a1a6b;
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #3d1559;
+}
+
+.btn-gold {
+    background-color: #d4a843;
+    color: #2d0f42;
+    transition: background-color 0.2s;
+}
+
+.btn-gold:hover {
+    background-color: #c49a38;
+}
+
+/* Toast notifications */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    padding: 16px 24px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.success { background-color: #059669; }
+.toast.error { background-color: #dc2626; }
+.toast.info { background-color: #4a1a6b; }
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.95);
+    transition: transform 0.2s;
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+}
+
+/* Badge */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-success { background: #d1fae5; color: #065f46; }
+.badge-danger { background: #fee2e2; color: #991b1b; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-info { background: #ede9fe; color: #4a1a6b; }
+
+/* Loading spinner */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Church hero section */
+.church-hero {
+    background: linear-gradient(135deg, #2d0f42 0%, #4a1a6b 50%, #3d1559 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.church-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(212, 168, 67, 0.08) 0%, transparent 60%);
+    animation: shimmer 15s linear infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(-20%, -20%); }
+    100% { transform: translate(0, 0); }
+}
+
+/* Responsive helpers */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        min-height: auto;
+    }
+}

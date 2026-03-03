@@ -1,0 +1,168 @@
+# ✝ Galilee Connect
+
+**Church Member Notification System**
+Galilee Missionary Baptist Church | Florence, Alabama | Pastor Moshiu Knox
+
+---
+
+## What It Does
+
+Galilee Connect keeps your congregation connected through automated daily communications:
+
+- **📖 Daily Bible Verse** — A new verse every morning, delivered to every member
+- **🎂 Birthday Wishes** — Personalized birthday greetings on the special day
+- **💒 Anniversary Wishes** — Celebrate milestones with your members
+- **✉️ Manual Messages** — Send announcements to all or selected members
+- **📝 Self-Registration** — Members sign up from their phones
+
+## Quick Start
+
+### 1. Install
+
+```bash
+cd galilee-connect
+npm install
+```
+
+### 2. Configure
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your settings:
+- **ADMIN_USERNAME** / **ADMIN_PASSWORD** — Dashboard login
+- **SMTP settings** — For sending emails (Gmail, SendGrid, etc.)
+- **SEND_HOUR** / **SEND_MINUTE** — When daily notifications go out (default: 8:00 AM CST)
+
+### 3. Setup & Seed
+
+```bash
+npm run setup
+```
+
+This creates the database and adds sample members for testing.
+
+### 4. Run
+
+```bash
+npm start
+```
+
+Open your browser:
+- **Member Registration:** http://localhost:3000
+- **Admin Dashboard:** http://localhost:3000/admin
+
+Default admin login:
+- Username: `pastor`
+- Password: `galilee2024`
+
+## Features
+
+### Admin Dashboard
+- View member stats and upcoming birthdays/anniversaries
+- Preview and customize daily Bible verse
+- Manage notification settings (time, enabled/disabled)
+- Send manual messages to all or selected members
+- View complete message delivery history
+
+### Member Management
+- Add, edit, and remove members
+- Import members from CSV files
+- Search and filter member list
+- Track email and SMS subscriptions
+
+### Notifications
+- Automated daily Bible verse (rotates through 100+ curated verses)
+- Birthday wishes with customizable templates
+- Anniversary wishes with customizable templates
+- Manual one-time messages with personalization ({{first_name}}, {{last_name}}, {{full_name}})
+
+### Delivery Channels
+- **Email** (via SMTP/Nodemailer) — configured in .env
+- **SMS** (via Twilio) — optional, set SMS_ENABLED=true
+- Pluggable architecture for future providers (KLT Connect VoIP)
+
+## Email Setup (Gmail)
+
+1. Enable 2-Factor Authentication on your Google account
+2. Generate an App Password: Google Account → Security → App Passwords
+3. Use these settings in .env:
+
+```
+EMAIL_ENABLED=true
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-16-char-app-password
+```
+
+## SMS Setup (Twilio)
+
+1. Create a Twilio account at https://twilio.com
+2. Get your Account SID, Auth Token, and a phone number
+3. Add to .env:
+
+```
+SMS_ENABLED=true
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxx
+TWILIO_AUTH_TOKEN=your-auth-token
+TWILIO_PHONE_NUMBER=+12565551234
+```
+
+## CSV Import Format
+
+The CSV importer is flexible and accepts these column names:
+
+```csv
+first_name,last_name,email,phone,birthday,anniversary
+Mary,Johnson,mary@example.com,(256) 555-0101,03/15,06/20
+James,Williams,james@example.com,(256) 555-0102,07-22,
+```
+
+Supported date formats: `MM-DD`, `MM/DD`, `MM/DD/YYYY`, `YYYY-MM-DD`
+
+## Project Structure
+
+```
+galilee-connect/
+├── server.js           # Main entry point
+├── routes/
+│   ├── admin.js        # Admin dashboard routes
+│   ├── members.js      # Member registration & unsubscribe
+│   └── api.js          # REST API (used by admin dashboard)
+├── services/
+│   ├── bible.js        # Bible verse fetcher & cache
+│   ├── database.js     # SQLite database
+│   ├── logger.js       # Winston logger
+│   ├── notifications.js # Email & SMS send engine
+│   ├── scheduler.js    # node-cron daily jobs
+│   └── sms.js          # Twilio SMS (pluggable)
+├── views/              # HTML templates
+├── public/             # CSS, JavaScript
+├── data/               # SQLite database file
+└── logs/               # Application logs
+```
+
+## Tech Stack
+
+- **Node.js** + Express
+- **SQLite** (via better-sqlite3)
+- **Tailwind CSS** (CDN)
+- **node-cron** for scheduling
+- **Nodemailer** for email
+- **Twilio** for SMS (optional)
+- **bible-api.com** for daily verses
+
+## Production Notes
+
+- Change `ADMIN_PASSWORD` and `SESSION_SECRET` to strong random values
+- Set `NODE_ENV=production`
+- Consider using PM2 for process management: `pm2 start server.js --name galilee`
+- Enable HTTPS (reverse proxy via nginx/Caddy recommended)
+- Set `cookie.secure = true` in session config behind HTTPS
+
+---
+
+*Built with 🙏 for Galilee Missionary Baptist Church*

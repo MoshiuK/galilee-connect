@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}{% if lesson %}Edit Lesson{% else %}New Lesson{% endif %} — Galilee Bible Class{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <a href="/admin/lessons" class="back-link">← Back to Lessons</a>
+        <h1>{% if lesson %}Edit Lesson{% else %}New Lesson{% endif %}</h1>
+    </div>
+
+    <div class="card form-card">
+        <form id="lessonForm" onsubmit="return handleLessonSubmit(event)" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">Lesson Title *</label>
+                <input type="text" id="title" name="title" class="form-input" required
+                       value="{{ lesson.title if lesson else '' }}"
+                       placeholder="e.g., The Power of Faith">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group form-half">
+                    <label for="lesson_date">Lesson Date *</label>
+                    <input type="date" id="lesson_date" name="lesson_date" class="form-input" required
+                           value="{{ lesson.lesson_date.strftime('%Y-%m-%d') if lesson else '' }}">
+                </div>
+                <div class="form-group form-half">
+                    <label for="status">Status</label>
+                    <select id="status" name="status" class="form-input">
+                        <option value="draft" {% if lesson and lesson.status == 'draft' %}selected{% endif %}>Draft</option>
+                        <option value="published" {% if lesson and lesson.status == 'published' %}selected{% endif %}>Published</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="scripture_reference">Scripture Reference</label>
+                <input type="text" id="scripture_reference" name="scripture_reference" class="form-input"
+                       value="{{ lesson.scripture_reference if lesson else '' }}"
+                       placeholder="e.g., John 3:16-17; Romans 8:28">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Short Description</label>
+                <input type="text" id="description" name="description" class="form-input"
+                       value="{{ lesson.description if lesson else '' }}"
+                       placeholder="Brief summary for the lesson card">
+            </div>
+
+            <div class="form-group">
+                <label for="content">Lesson Content (Markdown supported)</label>
+                <textarea id="content" name="content" class="form-textarea" rows="15"
+                          placeholder="Write lesson content here. Use **bold**, *italic*, ## headings, > blockquotes...">{{ lesson.content if lesson else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="media">Attachments (images, PDFs, audio, HTML)</label>
+                <input type="file" id="media" name="media" class="form-input file-input" multiple
+                       accept="image/*,.pdf,audio/*,.html">
+            </div>
+
+            {% if lesson and lesson.media %}
+            <div class="existing-media">
+                <h3>Current Attachments</h3>
+                {% for m in lesson.media %}
+                <div class="media-row" id="media-{{ m.id }}">
+                    <span>{{ m.filename }} ({{ m.media_type }})</span>
+                    <button type="button" class="btn btn-small btn-danger" onclick="deleteMedia({{ m.id }})">Remove</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div id="formMsg" class="submit-message" style="display:none;"></div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg" id="saveBtn">
+                    {% if lesson %}💾 Update Lesson{% else %}✅ Create Lesson{% endif %}
+                </button>
+                <a href="/admin/lessons" class="btn btn-secondary btn-lg">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+async function handleLessonSubmit(e) {
+    e.preventDefault();
+    var btn = document.getElementById('saveBtn');
+    var msgDiv = document.getElementById('formMsg');
+    btn.disabled = true;
+    msgDiv.style.display = 'none';
+
+    var formData = new FormData();
+    formData.append('title', document.getElementById('title').value);
+    formData.append('lesson_date', document.getElementById('lesson_date').value);
+    formData.append('status', document.getElementById('status').value);
+    formData.append('scripture_reference', document.getElementById('scripture_reference').value);
+    formData.append('description', document.getElementById('description').value);
+    formData.append('content', document.getElementById('content').value);
+
+    var files = document.getElementById('media').files;
+    for (var i = 0; i < files.length; i++) {
+        formData.append('media', files[i]);
+    }
+
+    var isEdit = {{ 'true' if lesson else 'false' }};
+    var url = isEdit ? '/api/admin/lessons/{{ lesson.id if lesson else 0 }}' : '/api/admin/lessons';
+    var method = isEdit ? 'PUT' : 'POST';
+
+    try {
+        var resp = await fetch(url, {method: method, body: formData});
+        var data = await resp.json();
+        if (data.success) {
+            msgDiv.className = 'submit-message success';
+            msgDiv.textContent = data.message;
+            msgDiv.style.display = 'block';
+            if (!isEdit && data.lesson_id) {
+                setTimeout(function() {
+                    window.location.href = '/admin/lessons/' + data.lesson_id + '/questions';
+                }, 1000);
+            } else {
+                btn.textContent = '✅ Saved!';
+                setTimeout(function() { window.location.href = '/admin/lessons'; }, 1000);
+            }
+        } else {
+            msgDiv.className = 'submit-message error';
+            msgDiv.textContent = data.message;
+            msgDiv.style.display = 'block';
+            btn.disabled = false;
+        }
+    } catch(err) {
+        msgDiv.className = 'submit-message error';
+        msgDiv.textContent = 'Connection error. Please try again.';
+        msgDiv.style.display = 'block';
+        btn.disabled = false;
+    }
+    return false;
+}
+
+async function deleteMedia(id) {
+    if (!confirm('Remove this attachment?')) return;
+    try {
+        var resp = await fetch('/api/admin/media/' + id, {method:'DELETE'});
+        var data = await resp.json();
+        if (data.success) {
+            document.getElementById('media-' + id).remove();
+        }
+    } catch(e) {
+        alert('Error removing attachment');
+    }
+}
+</script>
+{% endblock %}

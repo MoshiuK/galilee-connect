@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Questions — {{ lesson.title }}{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <a href="/admin/lessons" class="back-link">← Back to Lessons</a>
+        <h1>Questions: {{ lesson.title }}</h1>
+        <p class="lesson-meta-small">{{ lesson.lesson_date.strftime('%B %d, %Y') }}</p>
+    </div>
+
+    <!-- Existing Questions -->
+    <div id="questionsList">
+        {% for q in questions %}
+        <div class="question-manage-card" id="qcard-{{ q.id }}">
+            <div class="question-manage-header">
+                <span class="question-number">Q{{ loop.index }}</span>
+                <span class="q-type-badge">{{ q.question_type | replace('_',' ') | title }}</span>
+                <button class="btn btn-small btn-danger" onclick="deleteQuestion({{ q.id }})">Delete</button>
+            </div>
+            <div class="question-text">{{ q.question_text }}</div>
+            {% if q.options %}
+            <div class="mc-options-display">
+                {% for opt in q.options %}
+                <div class="mc-opt {% if opt == q.correct_answer %}mc-correct{% endif %}">
+                    {{ opt }} {% if opt == q.correct_answer %}✓{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% elif q.correct_answer %}
+            <div class="correct-answer-display">Answer: {{ q.correct_answer }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Add New Question -->
+    <div class="card form-card" style="margin-top:2rem;">
+        <h2>➕ Add Question</h2>
+        <form id="addQuestionForm" onsubmit="return handleAddQuestion(event)">
+            <div class="form-group">
+                <label for="question_type">Question Type</label>
+                <select id="question_type" class="form-input" onchange="toggleQuestionFields()">
+                    <option value="multiple_choice">Multiple Choice</option>
+                    <option value="fill_blank">Fill in the Blank</option>
+                    <option value="essay">Essay / Open Response</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="question_text">Question Text *</label>
+                <textarea id="question_text" class="form-textarea" rows="3" required
+                          placeholder="Enter your question..."></textarea>
+            </div>
+
+            <div id="mcFields">
+                <div class="form-group">
+                    <label>Options (4 choices)</label>
+                    <input type="text" id="opt1" class="form-input" placeholder="Option A" style="margin-bottom:0.5rem;">
+                    <input type="text" id="opt2" class="form-input" placeholder="Option B" style="margin-bottom:0.5rem;">
+                    <input type="text" id="opt3" class="form-input" placeholder="Option C" style="margin-bottom:0.5rem;">
+                    <input type="text" id="opt4" class="form-input" placeholder="Option D">
+                </div>
+                <div class="form-group">
+                    <label for="mc_correct">Correct Answer (must match one option exactly)</label>
+                    <input type="text" id="mc_correct" class="form-input" placeholder="e.g., Option A">
+                </div>
+            </div>
+
+            <div id="fbFields" style="display:none;">
+                <div class="form-group">
+                    <label for="fb_correct">Correct Answer</label>
+                    <input type="text" id="fb_correct" class="form-input" placeholder="The correct answer">
+                </div>
+            </div>
+
+            <div id="addQMsg" class="submit-message" style="display:none;"></div>
+
+            <button type="submit" class="btn btn-primary" id="addQBtn">➕ Add Question</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleQuestionFields() {
+    var type = document.getElementById('question_type').value;
+    document.getElementById('mcFields').style.display = type === 'multiple_choice' ? 'block' : 'none';
+    document.getElementById('fbFields').style.display = type === 'fill_blank' ? 'block' : 'none';
+}
+
+async function handleAddQuestion(e) {
+    e.preventDefault();
+    var btn = document.getElementById('addQBtn');
+    var msgDiv = document.getElementById('addQMsg');
+    btn.disabled = true;
+    msgDiv.style.display = 'none';
+
+    var type = document.getElementById('question_type').value;
+    var payload = {
+        lesson_id: {{ lesson.id }},
+        question_text: document.getElementById('question_text').value,
+        question_type: type,
+        options: [],
+        correct_answer: ''
+    };
+
+    if (type === 'multiple_choice') {
+        payload.options = [
+            document.getElementById('opt1').value,
+            document.getElementById('opt2').value,
+            document.getElementById('opt3').value,
+            document.getElementById('opt4').value
+        ].filter(function(o) { return o.trim() !== ''; });
+        payload.correct_answer = document.getElementById('mc_correct').value;
+    } else if (type === 'fill_blank') {
+        payload.correct_answer = document.getElementById('fb_correct').value;
+    }
+
+    try {
+        var resp = await fetch('/api/admin/questions', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        var data = await resp.json();
+        if (data.success) {
+            msgDiv.className = 'submit-message success';
+            msgDiv.textContent = data.message;
+            msgDiv.style.display = 'block';
+            setTimeout(function() { window.location.reload(); }, 800);
+        } else {
+            msgDiv.className = 'submit-message error';
+            msgDiv.textContent = data.message;
+            msgDiv.style.display = 'block';
+            btn.disabled = false;
+        }
+    } catch(err) {
+        msgDiv.className = 'submit-message error';
+        msgDiv.textContent = 'Error adding question';
+        msgDiv.style.display = 'block';
+        btn.disabled = false;
+    }
+    return false;
+}
+
+async function deleteQuestion(id) {
+    if (!confirm('Delete this question?')) return;
+    try {
+        var resp = await fetch('/api/admin/questions/' + id, {method:'DELETE'});
+        var data = await resp.json();
+        if (data.success) {
+            document.getElementById('qcard-' + id).remove();
+        }
+    } catch(e) {
+        alert('Error deleting question');
+    }
+}
+</script>
+{% endblock %}

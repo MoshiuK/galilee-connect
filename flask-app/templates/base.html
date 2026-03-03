@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Galilee Bible">
+    <meta name="theme-color" content="#103a7a">
+    <title>{% block title %}Galilee Bible Class{% endblock %}</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <span class="nav-cross">✝</span> Galilee Bible Class
+            </a>
+            <button class="nav-toggle" onclick="toggleNav()" aria-label="Menu">☰</button>
+            <div class="nav-links" id="navLinks">
+                {% if current_user.is_admin %}
+                <a href="/admin">Dashboard</a>
+                <a href="/lesson">View Lesson</a>
+                <a href="/admin/lessons">Manage Lessons</a>
+                <a href="/admin/members">Members</a>
+                <a href="/admin/participation">Participation</a>
+                {% else %}
+                <a href="/lesson">Current Lesson</a>
+                <a href="/my-submissions">My Submissions</a>
+                {% endif %}
+                <a href="/logout" class="nav-logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>Galilee Missionary Baptist Church &copy; 2026</p>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registered:', reg.scope))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

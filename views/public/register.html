@@ -1,0 +1,113 @@
+<!-- Church Hero Section -->
+<div class="church-hero text-center py-16 px-4 relative">
+    <div class="relative z-10">
+        <div class="text-6xl mb-4">✝</div>
+        <h1 class="text-3xl md:text-4xl font-display font-bold text-gold-400 mb-2">{{churchName}}</h1>
+        <p class="text-purple-200 text-lg mb-1">{{churchPastor}}</p>
+        <p class="text-purple-300 text-sm">{{churchCity}}</p>
+    </div>
+</div>
+
+<!-- Registration Form -->
+<div class="max-w-lg mx-auto px-4 py-10 -mt-6 relative z-10">
+    <div class="bg-white rounded-2xl shadow-xl p-8">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-display font-bold text-purple-900 mb-2">Stay Connected</h2>
+            <p class="text-gray-600">Join our church family notifications! Receive daily Bible verses, birthday blessings, and important updates.</p>
+        </div>
+
+        <form onsubmit="submitRegistration(event)">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                    <input type="text" name="first_name" required
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg"
+                        placeholder="First name">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                    <input type="text" name="last_name" required
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg"
+                        placeholder="Last name">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                <input type="email" name="email" required
+                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg"
+                    placeholder="your@email.com">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number <span class="text-gray-400">(optional)</span></label>
+                <input type="tel" name="phone"
+                    class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg"
+                    placeholder="(256) 555-0100">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Birthday 🎂 <span class="text-gray-400">(optional)</span></label>
+                <div class="flex gap-3">
+                    <select name="birthday_month" class="form-input flex-1 px-3 py-3 border border-gray-300 rounded-lg">
+                        <option value="">Month</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    <select name="birthday_day" class="form-input w-24 px-3 py-3 border border-gray-300 rounded-lg">
+                        <option value="">Day</option>
+                        <script>document.write(Array.from({length:31},(_, i) => `<option value="${i+1}">${i+1}</option>`).join(''));</script>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Anniversary 💒 <span class="text-gray-400">(optional)</span></label>
+                <div class="flex gap-3">
+                    <select name="anniversary_month" class="form-input flex-1 px-3 py-3 border border-gray-300 rounded-lg">
+                        <option value="">Month</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    <select name="anniversary_day" class="form-input w-24 px-3 py-3 border border-gray-300 rounded-lg">
+                        <option value="">Day</option>
+                        <script>document.write(Array.from({length:31},(_, i) => `<option value="${i+1}">${i+1}</option>`).join(''));</script>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full btn-primary py-3 rounded-lg font-semibold text-lg">
+                Join Our Family 🙏
+            </button>
+
+            <p class="text-center text-gray-400 text-xs mt-4">
+                You can unsubscribe at any time. We respect your privacy.
+            </p>
+        </form>
+    </div>
+
+    <div class="text-center mt-8 text-gray-400 text-sm">
+        <p>{{churchName}} • {{churchCity}}</p>
+        <p class="mt-1">© {{year}} All rights reserved</p>
+    </div>
+</div>
